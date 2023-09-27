@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using CRUDBusiness;
 using CRUDDatabase;
@@ -9,74 +10,104 @@ namespace CRUDConsoleApp
     {
         static void Main(string[] args)
         {
-            IRepositorio<Paciente> repositorio = new RepositorioEmArquivo<Paciente>("pacientes.json");
-            PacienteManager pacienteManager = new PacienteManager(repositorio);
-
-            List<Paciente> ultimosPacientes = pacienteManager.PesquisarPacientes("");
-
-            if (ultimosPacientes != null)
-            {
-                if (ultimosPacientes.Count > 0)
-                {
-                    Console.WriteLine("Últimos 5 pacientes cadastrados:");
-                    int count = 0;
-                    foreach (var paciente in ultimosPacientes)
-                    {
-                        Console.WriteLine($"{++count}. Nome: {paciente.Nome}, Data de Nascimento: {paciente.DataNascimento.ToShortDateString()} id:{paciente.Id}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Não existem pacientes cadastrados.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Ocorreu um erro ao recuperar a lista de pacientes.");
-            }
+            IRepositorio<Paciente> repositorio = null;
 
             bool sair = false;
             while (!sair)
             {
                 Console.WriteLine("\nEscolha uma opção:");
-                Console.WriteLine("1. Incluir Paciente");
-                Console.WriteLine("2. Alterar Paciente");
-                Console.WriteLine("3. Excluir Paciente");
-                Console.WriteLine("4. Pesquisar Paciente");
-                Console.WriteLine("5. Sair");
+                Console.WriteLine("1. Usar RepositorioEmArquivo");
+                Console.WriteLine("2. Usar RepositorioEmMemoria");
+                Console.WriteLine("3. Sair");
 
-                string escolha = Console.ReadLine();
+                string escolhaRepositorio = Console.ReadLine();
 
-                switch (escolha)
+                switch (escolhaRepositorio)
                 {
                     case "1":
-                        IncluirPaciente(pacienteManager);
+                        repositorio = new RepositorioEmArquivo<Paciente>("pacientes.json");
                         break;
                     case "2":
-                        AlterarPaciente(pacienteManager);
+                        repositorio = new RepositorioEmMemoria<Paciente>();
                         break;
                     case "3":
-                        ExcluirPaciente(pacienteManager);
-                        break;
-                    case "4":
-                        PesquisarPaciente(pacienteManager);
-                        break;
-                    case "5":
                         sair = true;
                         break;
                     default:
                         Console.WriteLine("Opção inválida. Tente novamente.");
                         break;
                 }
+
+                if (repositorio != null)
+                {
+                    PacienteManager pacienteManager = new PacienteManager(repositorio);
+                    List<Paciente> ultimosPacientes = pacienteManager.PesquisarPacientes("");
+
+                    if (ultimosPacientes != null)
+                    {
+                        if (ultimosPacientes.Count > 0)
+                        {
+                            Console.WriteLine("Últimos 5 pacientes cadastrados:");
+                            int count = 0;
+                            foreach (var paciente in ultimosPacientes)
+                            {
+                                Console.WriteLine($"{++count}. Nome: {paciente.Nome}, Data de Nascimento: {paciente.DataNascimento.ToShortDateString()} id:{paciente.Id}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Não existem pacientes cadastrados.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ocorreu um erro ao recuperar a lista de pacientes.");
+                    }
+
+                    bool sair2 = false;
+                    while (!sair2)
+                    {
+                        Console.WriteLine("\nEscolha uma opção:");
+                        Console.WriteLine("1. Incluir Paciente");
+                        Console.WriteLine("2. Alterar Paciente");
+                        Console.WriteLine("3. Excluir Paciente");
+                        Console.WriteLine("4. Pesquisar Paciente");
+                        Console.WriteLine("5. Sair");
+
+                        string escolha = Console.ReadLine();
+
+                        switch (escolha)
+                        {
+                            case "1":
+                                IncluirPaciente(pacienteManager);
+                                break;
+                            case "2":
+                                AlterarPaciente(pacienteManager);
+                                break;
+                            case "3":
+                                ExcluirPaciente(pacienteManager);
+                                break;
+                            case "4":
+                                PesquisarPaciente(pacienteManager);
+                                break;
+                            case "5":
+                                Environment.Exit(0);
+                                break;
+                            default:
+                                Console.WriteLine("Opção inválida. Tente novamente.");
+                                break;
+                        }
+                    }
+                }
             }
         }
 
         static void IncluirPaciente(PacienteManager pacienteManager)
         {
-           
+
             Guid id = Guid.NewGuid();
 
-            Console.WriteLine("ID gerado para o paciente: " + id); 
+            Console.WriteLine("ID gerado para o paciente: " + id);
             Console.WriteLine("Digite o nome do paciente:");
             string nome = Console.ReadLine();
 
@@ -94,7 +125,7 @@ namespace CRUDConsoleApp
                     {
                         Paciente paciente = new Paciente
                         {
-                            Id = id, 
+                            Id = id,
                             Nome = nome,
                             DataNascimento = dataNascimento,
                             Idade = idade,
@@ -213,7 +244,7 @@ namespace CRUDConsoleApp
             Console.WriteLine("Digite o termo de pesquisa ou o ID do paciente:");
             string termo = Console.ReadLine();
 
-            
+
             if (Guid.TryParse(termo, out Guid idPesquisa))
             {
                 Paciente pacienteEncontrado = pacienteManager.ObterPacientePorId(idPesquisa);
@@ -225,11 +256,11 @@ namespace CRUDConsoleApp
                     Console.WriteLine($"Idade: {pacienteEncontrado.Idade}");
                     Console.WriteLine($"Ativo: {pacienteEncontrado.Ativo}");
                     Console.WriteLine($"Peso: {pacienteEncontrado.Peso}");
-                    return; 
+                    return;
                 }
             }
 
-          
+
             List<Paciente> resultados = pacienteManager.PesquisarPacientes(termo);
 
             if (resultados != null)
@@ -255,3 +286,5 @@ namespace CRUDConsoleApp
         }
     }
 }
+
+    

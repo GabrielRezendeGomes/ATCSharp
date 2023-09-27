@@ -6,7 +6,7 @@ namespace CRUDBusiness
 {
     public class PacienteManager
     {
-        private IRepositorio<Paciente> _repositorio;
+        public IRepositorio<Paciente> _repositorio;
 
         public PacienteManager(IRepositorio<Paciente> repositorio)
         {
